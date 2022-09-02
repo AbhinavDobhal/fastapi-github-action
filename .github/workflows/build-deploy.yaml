@@ -1,0 +1,38 @@
+name: fastapi-github-action
+
+on:
+  push:
+    branches:
+      - "main"
+      - "master"
+
+jobs:
+  build:
+    runs-on: ubuntu-lastest
+    steps:
+      - name: Push repo
+        uses: actions/checkout@v3
+      - name: Install Python
+        uses: actions/setup-python@v3
+        with: python-version:"3.10"
+      - name: Upgrade Pip
+        run: python -m pip install -upgrade pip
+      - name: Install all dependencies
+        run: pip install -r requirements.txt
+
+  heroke-deployment:
+    runs-on: ubuntu-lastest
+    needs: [build]
+
+    environment:
+      name: heroku_production
+
+    steps:
+      - name: Get actions
+        uses: actions/checkout@v3
+      - name: Deploying to heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{secrets.APP_NAME}}
+          heroku_email: ${{secrets.EMAIL}}
